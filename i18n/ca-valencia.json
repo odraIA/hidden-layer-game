@@ -1,0 +1,38 @@
+{
+  "brand": {
+    "name": "Hidden Layer",
+    "tagline": "a VRAIN game"
+  },
+  "duration": {
+    "daysHours_one": "{{count}} dia i {{hours}}\u00a0h",
+    "daysHours_other": "{{count}} dies i {{hours}}\u00a0h",
+    "hoursMinutes": "{{hours}}\u00a0h {{minutes}}\u00a0min",
+    "minutes": "{{minutes}}\u00a0min"
+  },
+  "home": {
+    "round": {
+      "title": "Ronda {{number}}",
+      "progress": "{{done}} de {{total}} amagatalls completats"
+    },
+    "hide": {
+      "title": "Et toca amagar-lo!",
+      "targetLabel": "El teu objectiu",
+      "timeLeft": "Et queden {{hours}}\u00a0h {{minutes}}\u00a0min",
+      "clockNote": "El rellotge només corre en horari d'oficina.",
+      "cta": "Fer la foto"
+    },
+    "rumours": {
+      "title": "Rumors de l'oficina",
+      "found": "Algú ha trobat alguna cosa. L'amagatall ha aguantat {{duration}}.",
+      "undetectable": "Un amagatall ha sigut declarat Indetectable.",
+      "loading": "Parant l'orella…",
+      "error": "No hem pogut carregar els rumors.",
+      "retry": "Torna-ho a provar",
+      "empty": "Encara no hi ha rumors. Vigila la teua taula."
+    }
+  },
+  "sample": {
+    "note": "Pantalla de mostra de la fita M0. Les dades són d'exemple.",
+    "cameraPending": "La càmera arriba en la fita M4."
+  }
+}
