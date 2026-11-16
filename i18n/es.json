@@ -1,0 +1,38 @@
+{
+  "brand": {
+    "name": "Hidden Layer",
+    "tagline": "a VRAIN game"
+  },
+  "duration": {
+    "daysHours_one": "{{count}} día y {{hours}}\u00a0h",
+    "daysHours_other": "{{count}} días y {{hours}}\u00a0h",
+    "hoursMinutes": "{{hours}}\u00a0h {{minutes}}\u00a0min",
+    "minutes": "{{minutes}}\u00a0min"
+  },
+  "home": {
+    "round": {
+      "title": "Ronda {{number}}",
+      "progress": "{{done}} de {{total}} escondites completados"
+    },
+    "hide": {
+      "title": "¡Te toca esconderlo!",
+      "targetLabel": "Tu objetivo",
+      "timeLeft": "Te quedan {{hours}}\u00a0h {{minutes}}\u00a0min",
+      "clockNote": "El reloj solo corre en horario de oficina.",
+      "cta": "Hacer la foto"
+    },
+    "rumours": {
+      "title": "Rumores de la oficina",
+      "found": "Alguien ha encontrado algo tras {{duration}}.",
+      "undetectable": "Un escondite ha sido declarado Indetectable.",
+      "loading": "Poniendo la oreja…",
+      "error": "No hemos podido cargar los rumores.",
+      "retry": "Reintentar",
+      "empty": "Aún no hay rumores. Vigila tu mesa."
+    }
+  },
+  "sample": {
+    "note": "Pantalla de muestra del hito M0. Los datos son de ejemplo.",
+    "cameraPending": "La cámara llega en el hito M4."
+  }
+}

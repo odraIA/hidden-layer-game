@@ -1,0 +1,38 @@
+{
+  "brand": {
+    "name": "Hidden Layer",
+    "tagline": "a VRAIN game"
+  },
+  "duration": {
+    "daysHours_one": "{{count}} day and {{hours}}\u00a0h",
+    "daysHours_other": "{{count}} days and {{hours}}\u00a0h",
+    "hoursMinutes": "{{hours}}\u00a0h {{minutes}}\u00a0min",
+    "minutes": "{{minutes}}\u00a0min"
+  },
+  "home": {
+    "round": {
+      "title": "Round {{number}}",
+      "progress": "{{done}} of {{total}} hides done"
+    },
+    "hide": {
+      "title": "Your turn to hide it!",
+      "targetLabel": "Your target",
+      "timeLeft": "{{hours}}\u00a0h {{minutes}}\u00a0min left",
+      "clockNote": "The clock only runs during office hours.",
+      "cta": "Take the photo"
+    },
+    "rumours": {
+      "title": "Office rumours",
+      "found": "Someone found something after {{duration}}.",
+      "undetectable": "A hide has been declared Undetectable.",
+      "loading": "Listening in…",
+      "error": "We couldn't load the rumours.",
+      "retry": "Try again",
+      "empty": "No rumours yet. Watch your desk."
+    }
+  },
+  "sample": {
+    "note": "Sample screen for milestone M0. The data is made up.",
+    "cameraPending": "The camera arrives in milestone M4."
+  }
+}
