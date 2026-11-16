@@ -39,6 +39,7 @@ CI runs the three of them on every pull request (`.github/workflows/ci.yml`).
 | `app/` | Screens (expo-router) |
 | `components/` | UI components. `Button`, `Card`, `Badge` and `Screen` are the base set |
 | `theme/` | Design tokens: colors, fonts, spacing, radii, hard shadows |
+| `assets/images/` | App icon and splash art, with their SVG sources |
 | `i18n/` | All UI text: `es.json` (source), `ca-valencia.json`, `en.json` |
 | `lib/` | App code that is not UI. `lib/sample/` holds the made-up data |
 | `supabase/` | Local Supabase project: config, migrations, Edge Functions |
