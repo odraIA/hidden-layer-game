@@ -120,15 +120,19 @@ El portador ve: nombre, avatar, **ubicación de la mesa** (texto + foto opcional
 |---|---|---|
 | Portador no esconde | Recordatorios a las 4 h y 7 h laborables. | `hold_reminder_hours` |
 | Portador supera el plazo | Sus puntos de ese escondite ×0,5. El admin puede saltarle. | `hold_deadline_hours = 8`, `late_hide_multiplier = 0.5` |
-| Escondite sin descubrir | Al llegar al máximo, el escondite se cierra como **Indetectable** y la app avisa al objetivo: *"Llevas 3 días con algo escondido en tu mesa. Búscalo."* La cadena sigue cuando lo escanee. | `max_hidden_hours = 24` (3 días de 8 h) |
+| Escondite sin descubrir | Al llegar al máximo, el escondite se cierra como **Indetectable** y la app avisa al objetivo: *"Llevas 3 días con algo escondido en tu mesa. Búscalo."* La cadena sigue cuando lo escanee. | `max_hidden_hours = 24` (3 días de juego, ver 4.6) |
 
 ### 4.6 Tiempo laborable
 `working_minutes(start, end, target)` cuenta solo minutos que cumplen todo:
-- Lunes a viernes, entre `workday_start` y `workday_end` (por defecto 09:00–18:00, `Europe/Madrid`).
+- Lunes a viernes, entre `workday_start` y `workday_end` (por defecto 08:00–17:00, `Europe/Madrid`).
 - No es festivo (tabla `holidays`, editable).
 - El objetivo no tiene ausencia ese día.
 
 Implementar como función pura con tests exhaustivos (cambio de hora, festivos, fines de semana, ausencias parciales por días).
+
+**Día de juego.** Cada `working_hours_per_day` (por defecto 8) horas laborables cuentan como un día. No es un día de calendario. Se usa en dos sitios:
+- **Máximo escondido:** `max_hidden_hours = 24` son 3 días de juego, contados desde `hidden_at` y solo con las horas en que el objetivo está trabajando.
+- **Duraciones que ve el jugador:** 11 h laborables se muestran como *"1 día y 3 h"*.
 
 ---
 
@@ -140,7 +144,7 @@ Notación: `t` = minutos laborables con el objeto escondido. `M` = multiplicador
 ```
 P_hide = M · 300 · (1 − e^(−t/τ))         con t ≤ max_hidden (1440 min)
 ```
-Referencia (M = 1): 1 h → 66 · 4 h → 190 · 1 día → 259 · 2 días → 295.
+Referencia (M = 1; 1 día = 8 h laborables): 1 h → 66 · 4 h → 190 · 1 día → 259 · 2 días → 295.
 - **Indetectable** (llega al máximo): +50.
 - **Escondite rápido** (escondido en < 2 h laborables desde que lo recibió): +20.
 - **Escondite tardío** (supera `hold_deadline_hours`): `P_hide × 0.5`.
