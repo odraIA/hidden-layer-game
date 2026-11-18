@@ -1,0 +1,74 @@
+name: Build
+
+# Push a tag like v0.1.0 to build the APK and the unsigned IPA and publish them as a GitHub release.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+      - run: npm ci
+      - run: npx expo prebuild --platform android --clean
+      # The Expo template signs release builds with the debug key: installable, not Play Store ready.
+      - run: ./gradlew assembleRelease --no-daemon
+        working-directory: android
+      - run: mv android/app/build/outputs/apk/release/app-release.apk "hidden-layer-${GITHUB_REF_NAME}.apk"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: apk
+          path: hidden-layer-*.apk
+
+  ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx expo prebuild --platform ios --clean
+      - name: Build without signing
+        run: |
+          WORKSPACE=$(ls -d ios/*.xcworkspace)
+          SCHEME=$(basename "$WORKSPACE" .xcworkspace)
+          xcodebuild -workspace "$WORKSPACE" -scheme "$SCHEME" -configuration Release \
+            -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build
+      - name: Package IPA
+        run: |
+          mkdir Payload
+          cp -R build/Build/Products/Release-iphoneos/*.app Payload/
+          zip -qry "hidden-layer-${GITHUB_REF_NAME}-unsigned.ipa" Payload
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ipa
+          path: hidden-layer-*.ipa
+
+  release:
+    needs: [android, ios]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" hidden-layer-* --repo "$GITHUB_REPOSITORY" \
+            --title "Hidden Layer ${GITHUB_REF_NAME#v}" --prerelease \
+            --notes "Test build of milestone M0: the sample home screen with made-up data. The APK is signed with a debug key. The IPA is unsigned, so it has to be re-signed (AltStore, Sideloadly) before an iPhone will install it."

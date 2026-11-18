@@ -1,11 +1,11 @@
 import type { TFunction } from 'i18next';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
-import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { FoundIcon, UndetectableIcon } from '@/components/icons';
-import { colors, spacing, textStyles } from '@/theme';
+import { LoadState } from '@/components/LoadState';
+import { spacing, textStyles } from '@/theme';
 
 /** How long a hide lasted, already split into parts by the server. */
 type Duration = { days: number; hours: number; minutes: number };
@@ -22,9 +22,12 @@ type RumourListProps = {
   onRetry: () => void;
 };
 
-function formatDuration(t: TFunction, { days, hours, minutes }: Duration): string {
-  if (days > 0) return t('duration.daysHours', { count: days, hours });
-  if (hours > 0) return t('duration.hoursMinutes', { hours, minutes });
+/** Biggest unit plus the next one, dropping the next one when it is 0. */
+export function formatDuration(t: TFunction, { days, hours, minutes }: Duration): string {
+  if (days > 0) {
+    return hours > 0 ? t('duration.daysHours', { count: days, hours }) : t('duration.days', { count: days });
+  }
+  if (hours > 0) return minutes > 0 ? t('duration.hoursMinutes', { hours, minutes }) : t('duration.hours', { hours });
   return t('duration.minutes', { minutes });
 }
 
@@ -55,19 +58,9 @@ export function RumourList({ status, rumours, onRetry }: RumourListProps) {
         {t('home.rumours.title')}
       </Text>
 
-      {status === 'loading' ? (
-        <View style={styles.row}>
-          <ActivityIndicator color={colors.ink} />
-          <Text style={textStyles.body}>{t('home.rumours.loading')}</Text>
-        </View>
-      ) : null}
+      {status === 'loading' ? <LoadState status="loading" message={t('home.rumours.loading')} /> : null}
 
-      {status === 'error' ? (
-        <View style={styles.error}>
-          <Text style={textStyles.body}>{t('home.rumours.error')}</Text>
-          <Button variant="secondary" label={t('home.rumours.retry')} onPress={onRetry} />
-        </View>
-      ) : null}
+      {status === 'error' ? <LoadState status="error" message={t('home.rumours.error')} onRetry={onRetry} /> : null}
 
       {status === 'ready' && rumours.length === 0 ? (
         <Text style={textStyles.body}>{t('home.rumours.empty')}</Text>
@@ -89,9 +82,5 @@ const styles = StyleSheet.create({
   },
   rowText: {
     flex: 1,
-  },
-  error: {
-    alignItems: 'flex-start',
-    gap: spacing.md,
   },
 });

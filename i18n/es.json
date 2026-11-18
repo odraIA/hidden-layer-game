@@ -1,9 +1,15 @@
 {
+  "common": {
+    "retry": "Reintentar"
+  },
   "brand": {
     "name": "Hidden Layer",
-    "tagline": "a VRAIN game"
+    "tagline": "Un juego de VRAIN"
   },
   "duration": {
+    "days_one": "{{count}} día",
+    "days_other": "{{count}} días",
+    "hours": "{{hours}}\u00a0h",
     "daysHours_one": "{{count}} día y {{hours}}\u00a0h",
     "daysHours_other": "{{count}} días y {{hours}}\u00a0h",
     "hoursMinutes": "{{hours}}\u00a0h {{minutes}}\u00a0min",
@@ -12,7 +18,15 @@
   "home": {
     "round": {
       "title": "Ronda {{number}}",
-      "progress": "{{done}} de {{total}} escondites completados"
+      "progress": "{{done}} de {{total}} escondites completados",
+      "loading": "Contando escondites…",
+      "error": "No hemos podido cargar la ronda.",
+      "empty": "No hay ninguna ronda en marcha. Te avisaremos cuando empiece la siguiente."
+    },
+    "task": {
+      "loading": "Mirando si te toca algo…",
+      "error": "No hemos podido cargar tu tarea.",
+      "empty": "Nada pendiente. Vigila tu mesa."
     },
     "hide": {
       "title": "¡Te toca esconderlo!",
@@ -27,7 +41,6 @@
       "undetectable": "Un escondite ha sido declarado Indetectable.",
       "loading": "Poniendo la oreja…",
       "error": "No hemos podido cargar los rumores.",
-      "retry": "Reintentar",
       "empty": "Aún no hay rumores. Vigila tu mesa."
     }
   },

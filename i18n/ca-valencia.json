@@ -1,9 +1,15 @@
 {
+  "common": {
+    "retry": "Torna-ho a provar"
+  },
   "brand": {
     "name": "Hidden Layer",
-    "tagline": "a VRAIN game"
+    "tagline": "Un joc de VRAIN"
   },
   "duration": {
+    "days_one": "{{count}} dia",
+    "days_other": "{{count}} dies",
+    "hours": "{{hours}}\u00a0h",
     "daysHours_one": "{{count}} dia i {{hours}}\u00a0h",
     "daysHours_other": "{{count}} dies i {{hours}}\u00a0h",
     "hoursMinutes": "{{hours}}\u00a0h {{minutes}}\u00a0min",
@@ -12,7 +18,15 @@
   "home": {
     "round": {
       "title": "Ronda {{number}}",
-      "progress": "{{done}} de {{total}} amagatalls completats"
+      "progress": "{{done}} de {{total}} amagatalls completats",
+      "loading": "Comptant amagatalls…",
+      "error": "No hem pogut carregar la ronda.",
+      "empty": "No hi ha cap ronda en marxa. T'avisarem quan comence la següent."
+    },
+    "task": {
+      "loading": "Mirant si et toca alguna cosa…",
+      "error": "No hem pogut carregar la teua tasca.",
+      "empty": "Res pendent. Vigila la teua taula."
     },
     "hide": {
       "title": "Et toca amagar-lo!",
@@ -27,7 +41,6 @@
       "undetectable": "Un amagatall ha sigut declarat Indetectable.",
       "loading": "Parant l'orella…",
       "error": "No hem pogut carregar els rumors.",
-      "retry": "Torna-ho a provar",
       "empty": "Encara no hi ha rumors. Vigila la teua taula."
     }
   },
