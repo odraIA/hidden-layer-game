@@ -1,0 +1,42 @@
+# Taps through the M0 home screen in its four states and screenshots each one.
+# Run: maestro test -e PLATFORM=android .maestro   (emulators start in English)
+appId: com.odraia.hiddenlayer
+---
+- launchApp:
+    clearState: true
+
+- assertVisible: "Round 4"
+- assertVisible: "Your turn to hide it!"
+- tapOn: "Take the photo"
+- assertVisible: "The camera arrives in milestone M4."
+- takeScreenshot: ${PLATFORM}-1-ready
+
+- openLink: "hiddenlayer://?state=loading"
+# iOS asks before opening a custom-scheme link.
+- tapOn:
+    text: "Open"
+    optional: true
+- assertVisible: "Counting hides…"
+- assertVisible: "Checking whether it's your turn…"
+- takeScreenshot: ${PLATFORM}-2-loading
+
+- openLink: "hiddenlayer://?state=empty"
+- tapOn:
+    text: "Open"
+    optional: true
+- assertVisible: "No round is running. We'll let you know when the next one starts."
+- assertVisible: "Nothing to do. Watch your desk."
+- takeScreenshot: ${PLATFORM}-3-empty
+
+- openLink: "hiddenlayer://?state=error"
+- tapOn:
+    text: "Open"
+    optional: true
+- assertVisible: "We couldn't load the round."
+- assertVisible: "We couldn't load your task."
+- takeScreenshot: ${PLATFORM}-4-error
+- tapOn:
+    text: "Try again"
+    index: 0
+- assertVisible: "Your turn to hide it!"
+- assertNotVisible: "We couldn't load the round."
