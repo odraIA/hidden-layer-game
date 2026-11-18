@@ -1,0 +1,142 @@
+name: Build
+
+# A v* tag builds the APK and the unsigned IPA, taps through them on an Android
+# emulator and an iOS simulator (Maestro, screenshots kept as an artifact) and
+# publishes a GitHub release. Run it by hand to get builds and screenshots only.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  MAESTRO_VERSION: 2.12.1
+  MAESTRO_SHA256: 54dbb0716425626604973cbb374c585ca30272375d9ce15177a1152765ddd9d7
+  NAME: hidden-layer-${{ github.ref_name }}
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+      - run: npm ci
+      - run: npx expo prebuild --platform android --clean
+      # The Expo template signs release builds with the debug key: installable, not Play Store ready.
+      - run: ./gradlew assembleRelease --no-daemon
+        working-directory: android
+      - run: mv android/app/build/outputs/apk/release/app-release.apk "$NAME.apk"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: apk
+          path: ${{ env.NAME }}.apk
+
+      - name: Install Maestro
+        run: |
+          curl -fsSLo maestro.zip "https://github.com/mobile-dev-inc/maestro/releases/download/cli-$MAESTRO_VERSION/maestro.zip"
+          echo "$MAESTRO_SHA256  maestro.zip" | shasum -a 256 -c -
+          unzip -q maestro.zip -d "$HOME" && echo "$HOME/maestro/bin" >> "$GITHUB_PATH"
+      - name: Enable KVM for the emulator
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Tap through on an Android emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          script: |
+            adb install "$NAME.apk"
+            maestro test -e PLATFORM=android --test-output-dir maestro-output .maestro
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: screenshots-android
+          path: |
+            *.png
+            maestro-output/
+          if-no-files-found: ignore
+
+  ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+      - run: npm ci
+      - run: npx expo prebuild --platform ios --clean
+      - name: Build for devices and for the simulator, without signing
+        run: |
+          WORKSPACE=$(ls -d ios/*.xcworkspace)
+          SCHEME=$(basename "$WORKSPACE" .xcworkspace)
+          for TARGET in "iphoneos:generic/platform=iOS:build" "iphonesimulator:generic/platform=iOS Simulator:build-sim"; do
+            IFS=: read -r SDK DEST OUT <<< "$TARGET"
+            xcodebuild -workspace "$WORKSPACE" -scheme "$SCHEME" -configuration Release \
+              -sdk "$SDK" -destination "$DEST" -derivedDataPath "$OUT" \
+              CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build
+          done
+      - name: Package IPA
+        run: |
+          mkdir Payload
+          cp -R build/Build/Products/Release-iphoneos/*.app Payload/
+          zip -qry "$NAME-unsigned.ipa" Payload
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ipa
+          path: ${{ env.NAME }}-unsigned.ipa
+
+      - name: Install Maestro
+        run: |
+          curl -fsSLo maestro.zip "https://github.com/mobile-dev-inc/maestro/releases/download/cli-$MAESTRO_VERSION/maestro.zip"
+          echo "$MAESTRO_SHA256  maestro.zip" | shasum -a 256 -c -
+          unzip -q maestro.zip -d "$HOME" && echo "$HOME/maestro/bin" >> "$GITHUB_PATH"
+      - name: Tap through on an iOS simulator
+        run: |
+          UDID=$(xcrun simctl list devices available -j | python3 -c "import json,sys; d=json.load(sys.stdin)['devices']; print(next(x['udid'] for r,l in d.items() if 'iOS' in r for x in l if x['name'].startswith('iPhone')))")
+          xcrun simctl boot "$UDID"
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl install "$UDID" build-sim/Build/Products/Release-iphonesimulator/*.app
+          maestro --device "$UDID" test -e PLATFORM=ios --test-output-dir maestro-output .maestro
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: screenshots-ios
+          path: |
+            *.png
+            maestro-output/
+          if-no-files-found: ignore
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: [android, ios]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        # A re-run for the same tag replaces the files instead of failing.
+        run: |
+          FILES=(hidden-layer-*.apk hidden-layer-*.ipa)
+          gh release upload "$GITHUB_REF_NAME" "${FILES[@]}" --repo "$GITHUB_REPOSITORY" --clobber ||
+          gh release create "$GITHUB_REF_NAME" "${FILES[@]}" --repo "$GITHUB_REPOSITORY" \
+            --title "Hidden Layer ${GITHUB_REF_NAME#v}" --prerelease \
+            --notes "Test build of milestone M0: the sample home screen with made-up data. The APK is signed with a debug key. The IPA is unsigned, so it has to be re-signed (AltStore, Sideloadly) before an iPhone will install it. Screenshots of every screen state on an Android emulator and an iOS simulator are in this run's artifacts."

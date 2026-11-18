@@ -58,7 +58,7 @@ El admin crea la ronda (fecha de inicio, nº de cadenas = 1 por defecto).
 
 ### 3.5 `setup`
 - Layer 0 consigue el objeto físico. La app le muestra el **QR de la ronda** para imprimirlo/descargarlo y pegarlo discretamente en el objeto.
-- Plazo para hacer el primer escondite: `layer0_setup_days` (por defecto 3 días laborables). Recordatorios automáticos.
+- Plazo para hacer el primer escondite: `layer0_setup_hours = 36` (3 días de juego, ver 4.6), contadas con `working_minutes` contra las ausencias del propio Layer 0. Recordatorios automáticos.
 - Al hacer el primer escondite, la ronda pasa a `active`.
 
 ### 3.6 `active`: La cadena
@@ -118,8 +118,8 @@ El portador ve: nombre, avatar, **ubicación de la mesa** (texto + foto opcional
 ### 4.5 Plazos y atascos
 | Situación | Regla | Config |
 |---|---|---|
-| Portador no esconde | Recordatorios a las 4 h y 7 h laborables. | `hold_reminder_hours` |
-| Portador supera el plazo | Sus puntos de ese escondite ×0,5. El admin puede saltarle. | `hold_deadline_hours = 8`, `late_hide_multiplier = 0.5` |
+| Portador no esconde | Recordatorios a las 6 h y 10 h laborables. | `hold_reminder_hours = [6, 10]` |
+| Portador supera el plazo | Sus puntos de ese escondite ×0,5. El admin puede saltarle. | `hold_deadline_hours = 12` (1 día de juego, ver 4.6), `late_hide_multiplier = 0.5` |
 | Escondite sin descubrir | Al llegar al máximo, el escondite se cierra como **Indetectable** y la app avisa al objetivo: *"Llevas 3 días con algo escondido en tu mesa. Búscalo."* La cadena sigue cuando lo escanee. | `max_hidden_hours = 36` (3 días de juego, ver 4.6) |
 
 ### 4.6 Tiempo laborable
@@ -130,8 +130,10 @@ El portador ve: nombre, avatar, **ubicación de la mesa** (texto + foto opcional
 
 Implementar como función pura con tests exhaustivos (cambio de hora, festivos, fines de semana, ausencias parciales por días).
 
-**Día de juego.** Una jornada completa, de `workday_start` a `workday_end` (12 h laborables por defecto), cuenta como un día. No es un día de calendario. Se usa en dos sitios:
+**Día de juego.** Una jornada completa, de `workday_start` a `workday_end` (12 h laborables por defecto), cuenta como un día. No es un día de calendario. Los plazos de la partida se miden así:
 - **Máximo escondido:** `max_hidden_hours = 36` son 3 días de juego, contados desde `hidden_at` y solo con las horas en que el objetivo está trabajando.
+- **Plazo para esconder:** `hold_deadline_hours = 12` es 1 día de juego (ver 4.5).
+- **Primer escondite de Layer 0:** `layer0_setup_hours = 36` son 3 días de juego, con las ausencias de Layer 0 (ver 3.5).
 - **Duraciones que ve el jugador:** 15 h laborables se muestran como *"1 día y 3 h"*.
 
 **"Mañana no vengo".** Botón en Inicio que marca una ausencia para el siguiente día laborable. Es lo mismo que marcar ese día en el calendario de ausencias del Perfil, y desde allí se puede quitar. Ese día el contador de cualquier escondite en su mesa se para. El botón lo ven todos los jugadores, siempre, tengan o no algo escondido: así pulsarlo o verlo no revela nada (sección 6).
@@ -204,7 +206,7 @@ Si Layer 0 y curador son la misma persona, solo recibe la compensación de Layer
    - "Eres Layer 0" → aceptar/rechazar, decidir viabilidad del objeto, ver QR, primer escondite.
    - "Tienes el objeto → escóndelo en la mesa de X" (con cuenta atrás del plazo).
    - "Ronda en revelación → vota y sugiere".
-   - Nada pendiente → "Vigila tu mesa 👀".
+   - Nada pendiente → "Vigila tu mesa".
    - Siempre visible, sea cual sea la tarea: botón **"Mañana no vengo"** (ver 4.6).
 4. **Escanear**: botón grande siempre accesible para leer el QR.
 5. **Esconder**: checklist de reglas + cámara.

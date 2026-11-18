@@ -1,20 +1,30 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
+import { LoadState } from '@/components/LoadState';
 import { borders, colors, radii, spacing, textStyles } from '@/theme';
 
-type RoundProgressProps = {
-  roundNumber: number;
-  hidesDone: number;
-  hidesTotal: number;
-};
+/** `empty`: no round is running right now. */
+export type RoundProgressProps =
+  | { status: 'loading' }
+  | { status: 'empty' }
+  | { status: 'error'; onRetry: () => void }
+  | { status: 'ready'; roundNumber: number; hidesDone: number; hidesTotal: number };
 
 /**
  * Public round status (SPEC §6). One step per hide in the chain, so the bar
  * reads as layers stacking up. It says how many, never who.
  */
-export function RoundProgress({ roundNumber, hidesDone, hidesTotal }: RoundProgressProps) {
+export function RoundProgress(props: RoundProgressProps) {
   const { t } = useTranslation();
+
+  if (props.status === 'loading') return <LoadState status="loading" message={t('home.round.loading')} />;
+  if (props.status === 'error') {
+    return <LoadState status="error" message={t('home.round.error')} onRetry={props.onRetry} />;
+  }
+  if (props.status === 'empty') return <Text style={textStyles.body}>{t('home.round.empty')}</Text>;
+
+  const { roundNumber, hidesDone, hidesTotal } = props;
   const progress = t('home.round.progress', { done: hidesDone, total: hidesTotal });
 
   return (
