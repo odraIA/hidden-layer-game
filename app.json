@@ -5,14 +5,27 @@
     "version": "0.1.0",
     "scheme": "hiddenlayer",
     "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
     "userInterfaceStyle": "light",
     "backgroundColor": "#F3E7CF",
+    "ios": {
+      "bundleIdentifier": "com.odraia.hiddenlayer"
+    },
+    "android": {
+      "package": "com.odraia.hiddenlayer",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/icon-foreground.png",
+        "backgroundColor": "#F2B33D"
+      }
+    },
     "plugins": [
       "expo-router",
       "expo-font",
       [
         "expo-splash-screen",
         {
+          "image": "./assets/images/icon-foreground.png",
+          "imageWidth": 340,
           "backgroundColor": "#F3E7CF"
         }
       ],

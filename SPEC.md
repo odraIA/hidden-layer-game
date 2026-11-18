@@ -120,15 +120,21 @@ El portador ve: nombre, avatar, **ubicación de la mesa** (texto + foto opcional
 |---|---|---|
 | Portador no esconde | Recordatorios a las 4 h y 7 h laborables. | `hold_reminder_hours` |
 | Portador supera el plazo | Sus puntos de ese escondite ×0,5. El admin puede saltarle. | `hold_deadline_hours = 8`, `late_hide_multiplier = 0.5` |
-| Escondite sin descubrir | Al llegar al máximo, el escondite se cierra como **Indetectable** y la app avisa al objetivo: *"Llevas 3 días con algo escondido en tu mesa. Búscalo."* La cadena sigue cuando lo escanee. | `max_hidden_hours = 24` (3 días de 8 h) |
+| Escondite sin descubrir | Al llegar al máximo, el escondite se cierra como **Indetectable** y la app avisa al objetivo: *"Llevas 3 días con algo escondido en tu mesa. Búscalo."* La cadena sigue cuando lo escanee. | `max_hidden_hours = 36` (3 días de juego, ver 4.6) |
 
 ### 4.6 Tiempo laborable
 `working_minutes(start, end, target)` cuenta solo minutos que cumplen todo:
-- Lunes a viernes, entre `workday_start` y `workday_end` (por defecto 09:00–18:00, `Europe/Madrid`).
+- Lunes a viernes, entre `workday_start` y `workday_end` (por defecto 08:00–20:00, `Europe/Madrid`).
 - No es festivo (tabla `holidays`, editable).
 - El objetivo no tiene ausencia ese día.
 
 Implementar como función pura con tests exhaustivos (cambio de hora, festivos, fines de semana, ausencias parciales por días).
+
+**Día de juego.** Una jornada completa, de `workday_start` a `workday_end` (12 h laborables por defecto), cuenta como un día. No es un día de calendario. Se usa en dos sitios:
+- **Máximo escondido:** `max_hidden_hours = 36` son 3 días de juego, contados desde `hidden_at` y solo con las horas en que el objetivo está trabajando.
+- **Duraciones que ve el jugador:** 15 h laborables se muestran como *"1 día y 3 h"*.
+
+**"Mañana no vengo".** Botón en Inicio que marca una ausencia para el siguiente día laborable. Es lo mismo que marcar ese día en el calendario de ausencias del Perfil, y desde allí se puede quitar. Ese día el contador de cualquier escondite en su mesa se para. El botón lo ven todos los jugadores, siempre, tengan o no algo escondido: así pulsarlo o verlo no revela nada (sección 6).
 
 ---
 
@@ -138,9 +144,9 @@ Notación: `t` = minutos laborables con el objeto escondido. `M` = multiplicador
 
 ### 5.1 Escondite (para quien esconde)
 ```
-P_hide = M · 300 · (1 − e^(−t/τ))         con t ≤ max_hidden (1440 min)
+P_hide = M · 300 · (1 − e^(−t/τ))         con t ≤ max_hidden (2160 min)
 ```
-Referencia (M = 1): 1 h → 66 · 4 h → 190 · 1 día → 259 · 2 días → 295.
+Referencia (M = 1; 1 día = 12 h laborables): 1 h → 66 · 4 h → 190 · 1 día → 285 · 2 días → 299.
 - **Indetectable** (llega al máximo): +50.
 - **Escondite rápido** (escondido en < 2 h laborables desde que lo recibió): +20.
 - **Escondite tardío** (supera `hold_deadline_hours`): `P_hide × 0.5`.
@@ -199,6 +205,7 @@ Si Layer 0 y curador son la misma persona, solo recibe la compensación de Layer
    - "Tienes el objeto → escóndelo en la mesa de X" (con cuenta atrás del plazo).
    - "Ronda en revelación → vota y sugiere".
    - Nada pendiente → "Vigila tu mesa 👀".
+   - Siempre visible, sea cual sea la tarea: botón **"Mañana no vengo"** (ver 4.6).
 4. **Escanear**: botón grande siempre accesible para leer el QR.
 5. **Esconder**: checklist de reglas + cámara.
 6. **Revelación**: galería de escondites + sliders de votación 1–10.
